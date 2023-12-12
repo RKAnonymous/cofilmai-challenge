@@ -1,6 +1,16 @@
 version: "3.6"
 
 services:
+  postgres:
+    image: postgres:14-alpine
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=cofilm
 
   api:
     build: 
@@ -14,7 +24,9 @@ services:
       - .env
     environment:
       - JWT_SECRET=secret
-      - DATABASE_URL="postgresql://postgres:password@postgres:5432/cofilm"
+      - DATABASE_URL=postgresql://postgres:password@postgres:5432/cofilm
+    depends_on:
+      - postgres
 
   tiktok-worker:
     build: 
@@ -24,29 +36,22 @@ services:
     volumes:
       - ./workers/tiktok:/code/tiktok
     environment:
-      - DATABASE_URL="postgresql://postgres:password@postgres:5432/cofilm"
+      - DATABASE_URL=postgresql://postgres:password@postgres:5432/cofilm
+    depends_on:
+      - postgres
     
 
-  # swagger-ui:
-  #   image: swaggerapi/swagger-ui
-  #   container_name: "swagger-ui"
-  #   ports:
-  #     - "8080:8080"
-  #   volumes:
-  #     - ./openapi/api.cofilmai.yaml:/openapi.json
-  #   environment:
-  #     SWAGGER_JSON: /openapi.json
-
-  postgres:
-    image: postgres:14-alpine
-    ports:
-      - 5432:5432
-    volumes:
-      - postgres:/var/lib/postgresql/data
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=cofilm
+  swagger-ui:
+   image: swaggerapi/swagger-ui
+   container_name: "swagger-ui"
+   ports:
+     - "8080:8080"
+   volumes:
+     - ./openapi:/openapi
+   environment:
+     SWAGGER_JSON: /openapi/openapi.json
+   depends_on:
+     - api
 
 volumes:
   postgres:
