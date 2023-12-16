@@ -18,3 +18,25 @@ model User {
   updatedAt DateTime? @default(now())
   deletedAt DateTime?
 }
+
+// NOTE: This is a test model for TrendingMusic. It can be enriched based on consumed data.
+model TrendingMusic {
+  id        Int     @id @default(autoincrement())
+  author    String?
+  data      TrendingData? @relation(fields: [data_id], references: [id])
+  data_id   Int?
+
+}
+
+// NOTE: This is a test model for TrendingData. It can be enriched based on consumed data.
+model TrendingData {
+  id                  Int     @id @default(autoincrement())
+  hashtag             String  @db.VarChar(64)
+  postAuthorNickname  String  @db.VarChar()
+  musics              TrendingMusic[]
+  description         String  @db.Text
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @default(now())
+  deletedAt DateTime?
+}
+
